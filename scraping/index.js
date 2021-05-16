@@ -15,7 +15,7 @@ async function LoginCEI(page, limitAttempts = 5, attempts = 0) {
     await page.goto('https://cei.b3.com.br/CEI_Responsivo/login.aspx');
   }
   catch{
-    console.log("Tentativa Recarregar a Pagina:"+attempts+1);
+    console.log("Tentativa Recarregar a Pagina:"+attempts);
     if (attempts<5){
       return LoginCEI(page,limitAttempts,(attempts+1));
     }
@@ -23,7 +23,7 @@ async function LoginCEI(page, limitAttempts = 5, attempts = 0) {
   }
 
   try{
-    await page.waitForFunction('window.location.pathname==="/CEI_Responsivo/home.aspx"', {timeout:300000}); //tempo de espera maximo de 5 minutos
+    await page.waitForFunction('window.location.pathname==="/CEI_Responsivo/home.aspx"', {timeout:0}); 
     await page.waitForTimeout(500); // Pensar em algo melhor para garantir login
     return true;
   }
@@ -64,29 +64,27 @@ async function GetB3Statement(page,pathSaveXls=''){
 
 async function GetB3Transactions(page,pathSaveData=''){
   await page.goto('https://cei.b3.com.br/CEI_Responsivo/negociacao-de-ativos.aspx');
+  // await page.waitForTimeout(1000)
   const allInstituions = await page.evaluate(dom.domTransactions.GetAllInstitutions)
   const instituionSelectSelector = 'select#ctl00_ContentPlaceHolder1_ddlAgentes'
-  const transactionsImputSeletor = '#ctl00_ContentPlaceHolder1_btnConsultar'
+  const transactionsImputSeletor = '#ctl00_ContentPlaceHolder1_btnConsultar' //ctl00_ContentPlaceHolder1_btnConsultar
+  console.log("Teste1")
   
   for(institution of allInstituions){
+    
     await page.select(instituionSelectSelector, institution.value);
+    await page.waitForTimeout(1000)
     await page.click(transactionsImputSeletor)
-    page.waitForTimeout(1000)
+    page.waitForFunction(dom.domTransactions.ExistTableOrMsgAlert)
+    await page.waitForTimeout(1000)
     const msgExist = await page.evaluate(dom.domTransactions.ExistMsgAlert)
+    
     if (!msgExist){
       const dataTransactions = await page.evaluate(dom.domTransactions.GetStockTransactions)
       let data = JSON.stringify(dataTransactions);
       await fsOperations.SaveDataJson(data,institution.value+".json")
-      await page.click(transactionsImputSeletor)
-      await page.waitForFunction(dom.domTransactions.NotExistTable);
     }
-    else{
-      await page.click(transactionsImputSeletor)
-      page.waitForTimeout(1000)
-    }
-    // await page.waitForFunction(dom.domTransactions.ExistTable);
- 
-    // 
+      await page.reload();
   }
 }
 async function GetDataCEI()  {

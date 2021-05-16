@@ -1,16 +1,31 @@
 function TExistMsgAlert(){
-    const selector ='.alert-box.success'
-    return document.querySelector(selector)!==null
+    const selector ='.alert-box.success';
+    return document.querySelector(selector)!==null;
 }
 function TExistTable(){
-    const selector ='#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados'
-    return document.querySelector(selector)!==null
+    const selector ='#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados';
+    return document.querySelector(selector)!==null;
+}
+function TExistTableOrMsgAlert(){
+    const selectorTable ='#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados';
+    const selectorMsg ='.alert-box.success';
+    const isTable = document.querySelector(selectorTable)!==null;
+    const isMsg = document.querySelector(selectorMsg)!==null;
+    console.log("isTable: "+isTable+" isMsg: "+isMsg);
+    return isTable||isMsg
 }
 function TNotExistTable(){
-    const selector ='#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados'
-    return document.querySelector(selector)===null
+    const selector ='#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados';
+    return document.querySelector(selector)===null;
 }
-function TgetStockTransactions(){
+function TImputIsAvaliable(){
+    const selector = '#ctl00_ContentPlaceHolder1_btnConsultar'
+    if (document.querySelector(selector)===null){
+        return null
+    }
+    return document.querySelector(selector).value === 'Consultar'
+}
+function TGetStockTransactions(){
 
     const headSelector = '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table.responsive thead tr th'
     const headElementsMoviments = document.querySelectorAll(headSelector)
@@ -74,10 +89,12 @@ const domStatement = {
 const domTransactions = {
     GetAllInstitutions,
     GetAllAccounts,
-    GetStockTransactions:TgetStockTransactions,
+    GetStockTransactions:TGetStockTransactions,
     ExistTable:TExistTable,
     NotExistTable:TNotExistTable,
-    ExistMsgAlert:TExistMsgAlert
+    ExistMsgAlert:TExistMsgAlert,
+    ImputIsAvaliable:TImputIsAvaliable,
+    ExistTableOrMsgAlert:TExistTableOrMsgAlert
 }
 
 exports.domStatement = domStatement;
