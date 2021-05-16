@@ -1,0 +1,17 @@
+{
+  "name": "ceiscraping",
+  "version": "0.0.1",
+  "description": "only a scraping for cei b3",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "jpsamarino",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^9.1.1",
+    "puppeteer-extra": "^3.1.18",
+    "puppeteer-extra-plugin-stealth": "^2.7.8",
+    "xlsx": "^0.16.9"
+  }
+}
