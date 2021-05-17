@@ -105,12 +105,11 @@ async function GetDataCEI()  {
 
     if (await LoginCEI(page))
     {
-      // await GetB3Statement(page);
+      await GetB3Statement(page);
       await GetB3Transactions(page)
     }
   
     await browser.close();
-    console.log("teste")
 };
 
 GetDataCEI()

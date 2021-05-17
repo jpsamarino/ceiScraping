@@ -29,6 +29,32 @@ async function SaveDataJson(data, endFileName, endPathName='./BaseDados'){
     await fsPromises.writeFile(endPathName+"/"+replaceSpecialCaracters(endFileName),data,{recursive:true});
 }
 
+async function GetAllXlsFilesAddress(Path){
+        let andress = [];
+        const files = await fsPromises.readdir(Path)
+        for (const file of files){
+
+            const CompletePath = Path+"/"+ file;
+            const Directory =  (await fsPromises.lstat(CompletePath))
+            if(Directory.isDirectory()){
+               const localAdress =  await GetAllXlsFilesAddress(CompletePath);
+               andress = andress.concat(localAdress);
+            }
+            else{
+                if(file.slice(-3).toLowerCase()==='xls'){
+                    andress.push(CompletePath)
+                }
+            }
+        }
+         
+    return andress
+}
+
+// async function imprime(){
+//    const bb=  await GetAllXlsFilesAddress('./Extratos B3')
+//    console.log(bb)
+// }
+// imprime()
 // const anaC ={
 //     teste:'1223456767',
 //     teste3:233,
@@ -38,3 +64,4 @@ async function SaveDataJson(data, endFileName, endPathName='./BaseDados'){
 // SaveDataJson(JSON.stringify(anaC),'j.json')
 exports.SaveDataJson = SaveDataJson;
 exports.putFileInPath = putFileInPath;
+exports.GetAllXlsFilesAddress = GetAllXlsFilesAddress;
