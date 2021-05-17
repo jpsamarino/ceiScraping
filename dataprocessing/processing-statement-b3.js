@@ -1,123 +1,77 @@
 const XLSX = require('xlsx');
-const fs = require('../filesystem/fs-operations');
+const fsOperations = require('../filesystem/fs-operations');
 
-function mapCustodyXslToObj(worksheet,objMap)
-{
-   
-   const LineStart = (objMap.headLine).toString();
-   posibleKeys = Object.entries(worksheet).filter(
-       (v)=>{
-        return XLSX.utils.decode_cell(v[0]).r === (objMap.headLine-1)
-       }
-       )
-   console.log(posibleKeys)
+function getRowdata(worksheet,line){
+    return Object.entries(worksheet).filter((v)=>XLSX.utils.decode_cell(v[0]).r === (line-1))
 }
-function GetDataFromXls(file){
 
+function GetDataFromXls(file){
     let workbook = XLSX.readFile(file);
     let first_sheet_name = workbook.SheetNames[0];
     let worksheet = workbook.Sheets[first_sheet_name];
     
-    
-    const refCustodyNameExcel = {
-        headLine: 20,
-        column: {
-            stockName: 'Ativo',
-            obs: 'Especif.',
-            mainCodeB3:'Cód. Neg.',
-            amount: 'Saldo',
-            priceInDay:'Cotação',
-            totalPriceInDay:'Valor',
-    
-        }
-    }
-    mapCustodyXslToObj(worksheet,refCustodyNameExcel)
-
-
-    const refCustodyExcel = {
-        lineStart: 21,
-        column: {
-            stockName: 'F',
-            obs: 'U',
-            mainCodeB3:'AD',
-            amount: 'AN',
-            priceInDay:'AV',
-            totalPriceInDay:'BC',
-    
-        }
-    }
-    
-    const refEarningsExcel= {
-        lineStart: null,
-        column: {
-            stockName: 'F',
-            obs: 'V',
-            mainCodeB3:'AL',
-            amountEarning:'AY'
-        }
-    }
-    const dateCustody = worksheet['F18'].v.slice(22); // Caracter init date
-    
     let Agent = [];
-    if(worksheet['Q11']){
-        Agent = worksheet['Q11'].v.split(/(?<=\d) - /);
-    }
-    else{
-        Agent = worksheet['P11'].v.split(/(?<=\d) - /);
+    const initialLineHead = getRowdata(worksheet,11)
+    
+    if (initialLineHead.length == 0) // não existe nome
+    {
+        return null
     }
 
-    const rCE = refCustodyExcel;
-    let currentCell = worksheet[rCE.column.mainCodeB3+rCE.lineStart];
-    let qtLines = 0;
+    Agent = initialLineHead[1][1].v.split(/(?<=\d) - /);
+
+    const lineDate = getRowdata(worksheet,18)
+
+    const dateCustody = lineDate[0][1].v.slice(22); // Caracter init date
+
+    let cLine = 21;
+    let lineData = getRowdata(worksheet,cLine)
     let Custody = []
-    while(currentCell){
+
+    while(lineData.length==7){
         const currentLine = {
-            stockName: worksheet[rCE.column.stockName+(rCE.lineStart+qtLines)].v.trim(),
-            obs: worksheet[rCE.column.obs+(rCE.lineStart+qtLines)].v,
-            mainCodeB3:worksheet[rCE.column.mainCodeB3+(rCE.lineStart+qtLines)].v.trim(),
-            amount: parseInt(worksheet[rCE.column.amount+(rCE.lineStart+qtLines)].v),
-            priceInDay: worksheet[rCE.column.priceInDay+(rCE.lineStart+qtLines)].v,
-            totalPriceInDay: worksheet[rCE.column.totalPriceInDay+(rCE.lineStart+qtLines)].v,
+            stockName: lineData[0][1].v.trim(),
+            obs: lineData[1][1].v.trim(),
+            mainCodeB3:lineData[3][1].v.trim(),
+            amount: parseInt(lineData[4][1].v),
+            priceInDay: lineData[5][1].v,//worksheet[rCE.column.priceInDay+(rCE.lineStart+qtLines)].v,
+            totalPriceInDay: lineData[6][1].v,
             date:dateCustody,
             codAgent: Agent[0],
             nameAgent:Agent[1]
         };
         Custody.push(currentLine);
-        qtLines+=1;
-        currentCell = worksheet[rCE.column.mainCodeB3+(rCE.lineStart+qtLines)];
+        cLine+=1;
+        lineData = getRowdata(worksheet,cLine);
     }
-    
+    //console.log(Custody)
+
     const allFAddress = Object.keys(worksheet).filter((v)=>v.charAt(0)==='F');
-    
     for(address of allFAddress){
         if (worksheet[address].v.includes('PROVENTOS EM DINHEIRO - CREDITADOS')){
-            refEarningsExcel.lineStart = parseInt(address.slice(1))+2
+            cLine = parseInt(address.slice(1))+2
             break
         }
     }
     
+    lineData = getRowdata(worksheet,cLine);
     Earnings = [];
-    if(refEarningsExcel.lineStart){
-        rEE = refEarningsExcel
-        currentCell = worksheet[rEE.column.mainCodeB3+rEE.lineStart];
-        qtLines = 0;
-        
-        while(currentCell){
-            const currentLine = {
-                stockName: worksheet[rEE.column.stockName+(rEE.lineStart+qtLines)].v.trim(),
-                obs: worksheet[rEE.column.obs+(rEE.lineStart+qtLines)].v,
-                mainCodeB3:worksheet[rEE.column.mainCodeB3+(rEE.lineStart+qtLines)].v.trim(),
-                amountEarning: worksheet[rEE.column.amountEarning+(rEE.lineStart+qtLines)].v,
-                date:dateCustody,
-                codAgent: Agent[0],
-                nameAgent:Agent[1]
-            };
-            Earnings.push(currentLine);
-            qtLines+=1;
-            currentCell = worksheet[rEE.column.mainCodeB3+(rEE.lineStart+qtLines)];
-    
-        }
+
+    while(lineData.length==5){
+        const currentLine = {
+            stockName: lineData[0][1].v.trim(),
+            obs: lineData[1][1].v.trim(),
+            mainCodeB3:lineData[3][1].v.trim(),
+            amountEarning:lineData[4][1].v,
+            date:dateCustody,
+            codAgent: Agent[0],
+            nameAgent:Agent[1]
+        };
+        Earnings.push(currentLine);
+        cLine+=1;
+        lineData = getRowdata(worksheet,cLine);
     }
+    
 
     return {
         date:dateCustody,
@@ -130,18 +84,27 @@ function GetDataFromXls(file){
 }
 
 async function ProcessAllStatement(){
-    const allXlsAddress = await fs.GetAllXlsFilesAddress('./Extratos B3');
+    const allXlsAddress = await fsOperations.GetAllXlsFilesAddress('./Extratos B3');
     let statementData =[];
+    let earnings = [];
+    let custody = [];
     for (address of allXlsAddress){
         console.log(address);
         const data = GetDataFromXls(address);
-        statementData = statementData.concat(data);
+        if(data){
+            statementData = statementData.concat(data);
+            earnings = earnings.concat(data.Earnings)
+            custody = custody.concat(data.Custody)
+        }
         
     }
-    console.log("Teste");
-
+    console.log(statementData);
+    const xlsProcess = {
+        statementData,
+        earnings,
+        custody
+    }
+    let data = JSON.stringify(xlsProcess);
+    await fsOperations.SaveDataJson(data,"statementData.json")
 }
 ProcessAllStatement()
-teste = './Extratos B3/308 - CLEAR CORRETORA - GRUPO XP/ExtratoB3 2020-01-31 Janeiro-2020.xls'
-// console.log(GetDataFromXls(teste))
-// console.log("teste")
