@@ -29,7 +29,7 @@ async function SaveDataJson(data, endFileName, endPathName='./BaseDados'){
     await fsPromises.writeFile(endPathName+"/"+replaceSpecialCaracters(endFileName),data,{recursive:true});
 }
 
-async function GetAllXlsFilesAddress(Path){
+async function GetAllTypeFilesAddress(Path,typeF){
         let andress = [];
         const files = await fsPromises.readdir(Path)
         for (const file of files){
@@ -41,7 +41,7 @@ async function GetAllXlsFilesAddress(Path){
                andress = andress.concat(localAdress);
             }
             else{
-                if(file.slice(-3).toLowerCase()==='xls'){
+                if(file.slice(-3).toLowerCase()===typeF.slice(-3).toLowerCase()){
                     andress.push(CompletePath)
                 }
             }
@@ -49,6 +49,20 @@ async function GetAllXlsFilesAddress(Path){
          
     return andress
 }
+async function GetAllXlsFilesAddress(Path){
+   return (await GetAllTypeFilesAddress(Path,'xls'));
+}
+async function GetAllJsonFilesAddress(Path){
+    return (await GetAllTypeFilesAddress(Path,'json'));
+ }
+async function FileToString(Path){
+    return (await fsPromises.readFile(Path));
+ }
+
+async function FileJsonToVariable (Path){
+    const rawdata = await fsPromises.readFile(Path);
+    return (JSON.parse(rawdata));
+ } 
 
 // async function imprime(){
 //    const bb=  await GetAllXlsFilesAddress('./Extratos B3')
@@ -65,3 +79,6 @@ async function GetAllXlsFilesAddress(Path){
 exports.SaveDataJson = SaveDataJson;
 exports.putFileInPath = putFileInPath;
 exports.GetAllXlsFilesAddress = GetAllXlsFilesAddress;
+exports.GetAllJsonFilesAddress = GetAllJsonFilesAddress;
+exports.FileToString = FileToString;
+exports.FileJsonToVariable = FileJsonToVariable;

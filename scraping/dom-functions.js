@@ -31,6 +31,9 @@ function TGetStockTransactions(){
     const headElementsMoviments = document.querySelectorAll(headSelector)
     const headMoviments = [...headElementsMoviments].map((v)=>v.innerText)
 
+	const instituionSelectSelector = 'select#ctl00_ContentPlaceHolder1_ddlAgentes [selected="selected"]'
+    const Agent = document.querySelector(instituionSelectSelector).innerText.split(/(?<=\d) - /)
+	
     const bodySelector = '#ctl00_ContentPlaceHolder1_rptAgenteBolsa_ctl00_rptContaBolsa_ctl00_pnAtivosNegociados table.responsive tbody tr'
     const bodyElementsMoviments = document.querySelectorAll(bodySelector)
     const bodyMoviments = [...bodyElementsMoviments].map((v)=>{
@@ -46,18 +49,14 @@ function TGetStockTransactions(){
             unitaryPrice:arrayData[7],
             totalPrice:arrayData[8],
             quotationFactor:arrayData[9],
-            mainCodeB3:arrayData[4].replace(/[fF]$/,'')
-
+            mainCodeB3:arrayData[4].replace(/[fF]$/,''),
+            codAgent: Agent[0],
+            nameAgent:Agent[1]
         };
         return objExit
     })
 
-    const stockTransactions = {
-    headPt:headMoviments,
-    data:bodyMoviments
-    }
-
-    return stockTransactions
+    return bodyMoviments
 }
 function GetAllInstitutions(){
     const selector = 'select#ctl00_ContentPlaceHolder1_ddlAgentes option';
@@ -78,14 +77,12 @@ function SgetAllDates(){
 function SreceivedXls(ans){
     return ans.url() === 'https://cei.b3.com.br/Relatorio/Renderizar.aspx' && ans.status() === 200
 }
-
 const domStatement = {
     GetAllInstitutions,
     GetAllAccounts,
     GetAllDates:SgetAllDates,
     ReceivedXls:SreceivedXls
 }
-
 const domTransactions = {
     GetAllInstitutions,
     GetAllAccounts,

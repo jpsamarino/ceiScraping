@@ -68,7 +68,6 @@ async function GetB3Transactions(page,pathSaveData=''){
   const allInstituions = await page.evaluate(dom.domTransactions.GetAllInstitutions)
   const instituionSelectSelector = 'select#ctl00_ContentPlaceHolder1_ddlAgentes'
   const transactionsImputSeletor = '#ctl00_ContentPlaceHolder1_btnConsultar' //ctl00_ContentPlaceHolder1_btnConsultar
-  console.log("Teste1")
   
   for(institution of allInstituions){
     

@@ -98,13 +98,27 @@ async function ProcessAllStatement(){
         }
         
     }
-    console.log(statementData);
-    const xlsProcess = {
-        statementData,
-        earnings,
-        custody
-    }
-    let data = JSON.stringify(xlsProcess);
-    await fsOperations.SaveDataJson(data,"statementData.json")
+    let dataEarnings = JSON.stringify(earnings);
+    let dataCustody = JSON.stringify(custody);
+    await fsOperations.SaveDataJson(dataEarnings,"dataEarnings.json").catch(console.log);
+    await fsOperations.SaveDataJson(dataCustody,"dataCustody.json").catch(console.log);
 }
-ProcessAllStatement()
+
+
+async function ProcessAllTransactions(){
+    const allJsonAddress = await fsOperations.GetAllJsonFilesAddress('./BaseDados/transactions');
+    transactions = [];
+
+    for (address of allJsonAddress){
+        console.log(address);
+        const data = await fsOperations.FileJsonToVariable(address);
+        if(data){
+            transactions = transactions.concat(data);
+        }
+        
+    }
+    let dataTransactions = JSON.stringify(transactions);
+    await fsOperations.SaveDataJson(dataTransactions,"transactions.json").catch(console.log);
+}
+ProcessAllTransactions()
+// ProcessAllStatement()
