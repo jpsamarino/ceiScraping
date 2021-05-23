@@ -1,0 +1,2 @@
+Ok- Formato de Pontos em vez de virgula na quantidade ( leitura do excel)
+-Quando existe Feriados ou datas atipicas ( Ponderar)

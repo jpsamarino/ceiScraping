@@ -63,7 +63,11 @@ async function FileJsonToVariable (Path){
     const rawdata = await fsPromises.readFile(Path);
     return (JSON.parse(rawdata));
  } 
-
+ async function WriteinFile (File,data){
+    return (await fsPromises.appendFile(File,data));
+ }
+  
+//  WriteinFile('./teste.txt','ana paula issoé um teste')
 // async function imprime(){
 //    const bb=  await GetAllXlsFilesAddress('./Extratos B3')
 //    console.log(bb)
@@ -76,6 +80,7 @@ async function FileJsonToVariable (Path){
 // }
 
 // SaveDataJson(JSON.stringify(anaC),'j.json')
+exports.WriteInTxt = WriteinFile;
 exports.SaveDataJson = SaveDataJson;
 exports.putFileInPath = putFileInPath;
 exports.GetAllXlsFilesAddress = GetAllXlsFilesAddress;
