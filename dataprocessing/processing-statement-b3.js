@@ -122,7 +122,7 @@ async function ProcessAllTransactions(){
 
 async function AveragePriceResult(){
     const dataCustody = await fsOperations.FileJsonToVariable('./BaseDados/dataCustody.json');
-    const cnpjAndDatasArray = await fsOperations.FileJsonToVariable('./BaseDados/cnpjData.json');
+    const cnpjAndDatasArray = await fsOperations.FileJsonToVariable('./utils/cnpjData.json');
     const EarningsArray = await fsOperations.FileJsonToVariable('./BaseDados/dataEarnings.json');
     const EarningsArrayF = EarningsArray.filter(v=> (util.dateBr(v.date)>=util.dateBr('01/01/2020') && util.dateBr(v.date)<util.dateBr('01/01/2021'))).sort(CompareTransctionsSort)
     const EarningsYear = {}
@@ -408,7 +408,14 @@ function CompareCustodyWithTransactions (transactionsM,custodyM,residualBalanceI
     }
     
 }
+
+
+(async()=>{
+    await ProcessAllStatement();
+    await ProcessAllTransactions();
+    await AveragePriceResult();
+})();
 // ProcessAllStatement()
- AveragePriceResult()
+//  AveragePriceResult()
 //ProcessAllTransactions()
 // ProcessAllStatement()

@@ -81,7 +81,7 @@ async function GetB3Transactions(page,pathSaveData=''){
     if (!msgExist){
       const dataTransactions = await page.evaluate(dom.domTransactions.GetStockTransactions)
       let data = JSON.stringify(dataTransactions);
-      await fsOperations.SaveDataJson(data,institution.value+".json")
+      await fsOperations.SaveDataJson(data,institution.value+".json",'./BaseDados/transactions')
     }
       await page.reload();
   }
