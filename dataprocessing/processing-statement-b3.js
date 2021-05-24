@@ -155,14 +155,16 @@ async function AveragePriceResult(){
     
     const dataFilter = dataCustody.filter(v=> (util.dateBr(v.date)>=util.dateBr('01/12/2019') && util.dateBr(v.date)<util.dateBr('01/06/2021')))
 
-    const CustodyOp= dataCustody.filter(v=> (util.dateBr(v.date)>=util.dateBr('01/12/2019') && util.dateBr(v.date)<util.dateBr('01/01/2020')))
-    const CustodyC= dataCustody.filter(v=> (util.dateBr(v.date)>=util.dateBr('01/12/2020') && util.dateBr(v.date)<util.dateBr('01/01/2021')))
+
+
+    const objCustodyOp= CreateObjCustody(dataCustody.filter(v=> (util.dateBr(v.date)>=util.dateBr('01/12/2019') && util.dateBr(v.date)<util.dateBr('01/01/2020'))))
+    const objCustodyC= CreateObjCustody(dataCustody.filter(v=> (util.dateBr(v.date)>=util.dateBr('01/12/2020') && util.dateBr(v.date)<util.dateBr('01/01/2021'))))
     
     const tab = String.fromCharCode(9);
-    const aqCustodia = './saidaCustodia.txt';
-    const aqOperacoes = './saidaOperacoes.txt';
-    const aqDividendos = './saidaDividendos.txt';
-    const aqDividendosA = './saidaDividendosA.txt';
+    const aqCustodia = './BaseDados/saidaCustodia.txt';
+    const aqOperacoes = './BaseDados/saidaOperacoes.txt';
+    const aqDividendos = './BaseDados/saidaDividendos.txt';
+    const aqDividendosA = './BaseDados/saidaDividendosA.txt';
 
     for (keyV of Object.keys(EarningsYear))
     {   const valor = EarningsYear[keyV];
@@ -178,15 +180,19 @@ async function AveragePriceResult(){
         await fsOperations.WriteInTxt(aqDividendos,imprime)
     }
     
-    for (valor of CustodyC)
+    const CustodyC = objCustodyC[Object.keys(objCustodyC)[0]]
+    for (keyV of Object.keys(CustodyC))
     {
-        const imprime = valor.stockName+tab+valor.mainCodeB3+tab+getCNPJ(valor.mainCodeB3)+tab+valor.amount+tab+"0"+tab+valor.date+"\n";
+        const valor = CustodyC[keyV];
+        const imprime = valor.stockName+tab+keyV+tab+getCNPJ(keyV)+tab+valor.amount+tab+"0"+tab+valor.date+"\n";
         await fsOperations.WriteInTxt(aqCustodia,imprime)
     }
 
-    for (valor of CustodyOp)
+    const CustodyOp = objCustodyC[Object.keys(objCustodyC)[0]]
+    for (keyV of Object.keys(CustodyOp))
     {
-        const imprime = valor.stockName+tab+valor.mainCodeB3+tab+getCNPJ(valor.mainCodeB3)+tab+valor.amount+tab+"0"+tab+valor.date+"\n";
+        const valor = CustodyOp[keyV];
+        const imprime = valor.stockName+tab+keyV+tab+getCNPJ(keyV)+tab+valor.amount+tab+"0"+tab+valor.date+"\n";
         await fsOperations.WriteInTxt(aqOperacoes,imprime)
     }
     
@@ -266,7 +272,7 @@ function CreateObjAmount(ObjCustody){
 
     return objAmount
 }
-function CreateObjCustody(ArrayCustody){
+function CreateObjCustody(ArrayCustody){ //join
     const ProcessedCustody = {}
     for (Custody of ArrayCustody){
 
@@ -280,7 +286,8 @@ function CreateObjCustody(ArrayCustody){
                 ProcessedCustody[dateRef][Custody.mainCodeB3] = {
                     stockName:Custody.stockName,
                     amount:Custody.amount,
-                    codAgent: [Custody.codAgent]
+                    codAgent: [Custody.codAgent],
+                    date:Custody.date
                 }
             }
         }
@@ -289,7 +296,8 @@ function CreateObjCustody(ArrayCustody){
                 [Custody.mainCodeB3]: {
                         stockName:Custody.stockName,
                         amount:Custody.amount,
-                        codAgent: [Custody.codAgent]
+                        codAgent: [Custody.codAgent],
+                        date:Custody.date
                 }
             }
         }
@@ -411,8 +419,8 @@ function CompareCustodyWithTransactions (transactionsM,custodyM,residualBalanceI
 
 
 (async()=>{
-    await ProcessAllStatement();
-    await ProcessAllTransactions();
+    // await ProcessAllStatement();
+    // await ProcessAllTransactions();
     await AveragePriceResult();
 })();
 // ProcessAllStatement()
